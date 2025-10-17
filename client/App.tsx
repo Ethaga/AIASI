@@ -1,7 +1,4 @@
-import "./global.css";
-
 import { Toaster } from "@/components/ui/toaster";
-import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -53,11 +50,4 @@ function AppShell() {
   );
 }
 
-{
-  const container = document.getElementById("root")!;
-  const anyWin = window as any;
-  if (!anyWin.__REACT_ROOT__) {
-    anyWin.__REACT_ROOT__ = createRoot(container);
-  }
-  anyWin.__REACT_ROOT__.render(<App />);
-}
+export default App;
