@@ -10,7 +10,7 @@ const queryClient = new QueryClient();
 
 import TerminalHeader from "@/components/TerminalHeader";
 import { useEffect } from "react";
-import { connectWallet, sendMessage } from "@/lib/agentTerminal";
+import { connectWallet, sendMessage, pingAgent } from "@/lib/agentTerminal";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
