@@ -1,0 +1,26 @@
+@layer utilities {
+  .font-mono { font-family: "Fira Code", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  .neon-text { text-shadow: 0 0 10px #0ff, 0 0 20px #00ffff88; }
+  .neon-button { box-shadow: 0 0 10px #0ff, 0 0 20px #00ffff66; }
+  .bg-cyber {
+    background:
+      radial-gradient(circle at 20% 20%, #0a0a0f 0%, #000 100%),
+      linear-gradient(120deg, rgba(95,67,241,0.08), rgba(0,255,255,0.06));
+    position: relative;
+  }
+  .bg-cyber::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(95,67,241,0.06) 1px, transparent 1px);
+    background-size: 40px 40px, 40px 40px;
+    mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 85%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .chat-box { max-width: 700px; margin: 3rem auto; padding: 20px; height: 450px; overflow-y: auto; color: #00ffff; }
+  .user-msg { text-align: right; color: #ff00ff; margin: 8px 0; }
+  .agent-msg { text-align: left; color: #00ffff; margin: 8px 0; }
+}
