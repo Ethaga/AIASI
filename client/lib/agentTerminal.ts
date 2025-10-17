@@ -22,10 +22,14 @@ export async function sendMessage() {
   if (!input) return;
   if (chatBox) chatBox.innerHTML += `</p><p>You: ${input}</p><p>`;
 
+  const endpoint = (window as any).AGENT_ENDPOINT ||
+    `${location.origin}/api/ask`;
+
   try {
-    const res = await fetch(`https://your-codespace-url/ask?q=${encodeURIComponent(input)}`);
+    const res = await fetch(`${endpoint}?q=${encodeURIComponent(input)}`);
     const data = await res.json();
-    if (chatBox) chatBox.innerHTML += `</p><p>Agent: ${data.reply}</p><p>`;
+    const reply = data.reply ?? data.message ?? "Acknowledged.";
+    if (chatBox) chatBox.innerHTML += `</p><p>Agent: ${reply}</p><p>`;
   } catch (e) {
     if (chatBox) chatBox.innerHTML += `</p><p>Agent: Sorry, the agent endpoint is unreachable.</p><p>`;
   }
