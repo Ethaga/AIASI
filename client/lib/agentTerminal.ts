@@ -28,7 +28,8 @@ export async function connectWallet() {
 
 export async function pingAgent() {
   const statusEl = document.querySelector("#statusBar") as HTMLElement | null;
-  const endpoint = (window as any).AGENT_ENDPOINT || `${location.origin}/api/ask`;
+  const endpoint =
+    (window as any).AGENT_ENDPOINT || `${location.origin}/api/ask`;
   try {
     const res = await fetch(endpoint, {
       method: "POST",
@@ -51,7 +52,9 @@ export async function pingAgent() {
 }
 
 export async function sendMessage(userText?: string) {
-  const inputEl = document.getElementById("userInput") as HTMLInputElement | null;
+  const inputEl = document.getElementById(
+    "userInput",
+  ) as HTMLInputElement | null;
   const chatBox = document.getElementById("chatBox");
   const text = (userText ?? inputEl?.value ?? "").trim();
   if (!text) return;
@@ -60,7 +63,8 @@ export async function sendMessage(userText?: string) {
     chatBox.innerHTML += `<div class='user'>You: ${escapeHtml(text)}</div>`;
   }
 
-  const endpoint = (window as any).AGENT_ENDPOINT || `${location.origin}/api/ask`;
+  const endpoint =
+    (window as any).AGENT_ENDPOINT || `${location.origin}/api/ask`;
 
   try {
     const res = await fetch(endpoint, {
@@ -70,7 +74,8 @@ export async function sendMessage(userText?: string) {
     });
     const data = await res.json();
     const reply = data.reply ?? data.message ?? "...";
-    if (chatBox) chatBox.innerHTML += `<div class='agent'>Agent: ${escapeHtml(reply)}</div>`;
+    if (chatBox)
+      chatBox.innerHTML += `<div class='agent'>Agent: ${escapeHtml(reply)}</div>`;
   } catch (err) {
     if (chatBox)
       chatBox.innerHTML += `<div class='agent error'>Agent: unreachable ⚠️</div>`;
