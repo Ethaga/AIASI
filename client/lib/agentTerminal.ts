@@ -72,10 +72,34 @@ export async function sendMessage(userText?: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ q: text }),
     });
-    const data = await res.json();
-    const reply = data.reply ?? data.message ?? "...";
+
+    let data: any = null;
+    try {
+      const contentType = (res.headers.get("content-type") || "").toLowerCase();
+      if (contentType.includes("application/json")) {
+        // clone the response before parsing to avoid "body stream already read"
+        data = await res.clone().json();
+      } else {
+        const txt = await res.text();
+        try {
+          data = JSON.parse(txt);
+        } catch {
+          data = { reply: txt };
+        }
+      }
+    } catch (parseErr) {
+      console.warn("Failed to parse response body as JSON, falling back to text:", parseErr);
+      try {
+        const txt = await res.text();
+        data = { reply: txt };
+      } catch {
+        data = { reply: "..." };
+      }
+    }
+
+    const reply = (data && (data.reply ?? data.message)) ?? "...";
     if (chatBox)
-      chatBox.innerHTML += `<div class='agent'>Agent: ${escapeHtml(reply)}</div>`;
+      chatBox.innerHTML += `<div class='agent'>Agent: ${escapeHtml(String(reply))}</div>`;
   } catch (err) {
     if (chatBox)
       chatBox.innerHTML += `<div class='agent error'>Agent: unreachable ⚠️</div>`;
