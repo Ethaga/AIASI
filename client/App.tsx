@@ -11,20 +11,46 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+import TerminalHeader from "@/components/TerminalHeader";
+import { useEffect } from "react";
+import { connectWallet, sendMessage } from "@/lib/agentTerminal";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AppShell />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+function AppShell() {
+  useEffect(() => {
+    (window as any).connectWallet = connectWallet;
+    (window as any).sendMessage = sendMessage;
+  }, []);
+
+  return (
+    <div className="min-h-screen flex flex-col font-mono bg-cyber">
+      <TerminalHeader />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <footer className="mt-auto w-full py-3">
+        <div
+          id="statusBar"
+          className="text-center text-[0.9rem] text-[#39ff14] drop-shadow-[0_0_5px_#39ff14]"
+        >
+          🔗 Connected to Agentverse
+        </div>
+      </footer>
+    </div>
+  );
+}
 
 createRoot(document.getElementById("root")!).render(<App />);

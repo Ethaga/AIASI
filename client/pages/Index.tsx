@@ -1,62 +1,37 @@
 import { DemoResponse } from "@shared/api";
 import { useEffect, useState } from "react";
 
+import { useEffect } from "react";
+
 export default function Index() {
-  const [exampleFromServer, setExampleFromServer] = useState("");
-  // Fetch users on component mount
   useEffect(() => {
-    fetchDemo();
+    (window as any).connectWallet = (window as any).connectWallet || undefined;
+    (window as any).sendMessage = (window as any).sendMessage || undefined;
   }, []);
 
-  // Example of how to fetch data from the server (if needed)
-  const fetchDemo = async () => {
-    try {
-      const response = await fetch("/api/demo");
-      const data = (await response.json()) as DemoResponse;
-      setExampleFromServer(data.message);
-    } catch (error) {
-      console.error("Error fetching hello:", error);
-    }
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="text-center">
-        {/* TODO: FUSION_GENERATION_APP_PLACEHOLDER replace everything here with the actual app! */}
-        <h1 className="text-2xl font-semibold text-slate-800 flex items-center justify-center gap-3">
-          <svg
-            className="animate-spin h-8 w-8 text-slate-400"
-            viewBox="0 0 50 50"
+    <main className="min-h-[calc(100vh-92px-48px)] px-4">
+      <section className="max-w-3xl mx-auto mt-10 md:mt-14">
+        <div
+          id="chatBox"
+          className="chat-box rounded-xl backdrop-blur bg-cyan-300/5 border border-cyan-400/30 shadow-[0_0_30px_-5px_rgba(0,255,255,0.25)]"
+        ></div>
+
+        <div className="mt-4 flex items-center gap-3">
+          <input
+            id="userInput"
+            type="text"
+            placeholder="Type your message to the ASI agent..."
+            className="w-full md:w-3/4 px-4 py-3 rounded-lg outline-none font-mono text-cyan-200 placeholder:text-cyan-500/70 bg-black/80 border border-cyan-400/60 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/50"
+          />
+          <button
+            onClick={() => (window as any).sendMessage?.()}
+            className="neon-button px-4 py-3 rounded-lg text-sm md:text-base font-bold bg-[linear-gradient(90deg,#5F43F1,#00FFFF)] text-slate-900"
           >
-            <circle
-              className="opacity-30"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-            />
-            <circle
-              className="text-slate-600"
-              cx="25"
-              cy="25"
-              r="20"
-              stroke="currentColor"
-              strokeWidth="5"
-              fill="none"
-              strokeDasharray="100"
-              strokeDashoffset="75"
-            />
-          </svg>
-          Generating your app...
-        </h1>
-        <p className="mt-4 text-slate-600 max-w-md">
-          Watch the chat on the left for updates that might need your attention
-          to finish generating
-        </p>
-        <p className="mt-4 hidden max-w-md">{exampleFromServer}</p>
-      </div>
-    </div>
+            Send
+          </button>
+        </div>
+      </section>
+    </main>
   );
 }

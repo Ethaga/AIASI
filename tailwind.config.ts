@@ -80,10 +80,19 @@ export default {
             height: "0",
           },
         },
+        "spin-slower": {
+          to: { transform: "rotate(360deg)" },
+        },
+        glow: {
+          "0%,100%": { boxShadow: "0 0 10px rgba(0,255,255,0.5)" },
+          "50%": { boxShadow: "0 0 20px rgba(0,255,255,0.9)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "spin-slower": "spin-slower 6s linear infinite",
+        glow: "glow 2.5s ease-in-out infinite",
       },
     },
   },
