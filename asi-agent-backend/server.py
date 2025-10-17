@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from uagents import Bureau
 from agent import cypher_agent, ChatMessage
@@ -9,7 +9,8 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://spectacular-buttercream-44383a.netlify.app"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,6 +49,15 @@ async def ask_agent(q: str = Query(...)):
                 return {"reply": f"Agent HTTP submit returned status {r.status_code}."}
     except Exception as e:
         return {"reply": f"Failed to deliver message to agent via HTTP: {e}"}
+
+
+# Fast POST endpoint for quick frontend checks
+@app.post("/ask")
+async def ask(request: Request):
+    data = await request.json()
+    q = data.get("q", "")
+    print(f"Received: {q}")
+    return {"reply": f"Agent received: {q}"}
 
 if __name__ == "__main__":
     bureau.run()
