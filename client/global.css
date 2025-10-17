@@ -1,8 +1,8 @@
 /** @import must precede all other statements */
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap");
+@import url("./cyber.css");
 
 @tailwind base;
-@import url("./cyber.css");
 @tailwind components;
 @tailwind utilities;
 
