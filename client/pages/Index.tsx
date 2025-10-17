@@ -19,6 +19,9 @@ export default function Index() {
             id="userInput"
             type="text"
             placeholder="Type your message to the ASI agent..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter") (window as any).sendMessage?.();
+            }}
             className="w-full md:w-3/4 px-4 py-3 rounded-lg outline-none font-mono text-cyan-200 placeholder:text-cyan-500/70 bg-black/80 border border-cyan-400/60 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/50"
           />
           <button
