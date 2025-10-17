@@ -1,9 +1,23 @@
 from fastapi import FastAPI, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from uagents import Bureau
-from agent import cypher_agent, ChatMessage
-import uuid
+import asyncio
 import httpx
+
+# Import the local agent.py reliably regardless of the current working directory
+import importlib.util
+import os
+import sys
+
+_HERE = os.path.dirname(__file__)
+_AGENT_PATH = os.path.join(_HERE, "agent.py")
+spec = importlib.util.spec_from_file_location("asi_agent_backend_agent", _AGENT_PATH)
+agent_mod = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = agent_mod
+spec.loader.exec_module(agent_mod)
+
+cypher_agent = agent_mod.cypher_agent
+ChatMessage = agent_mod.ChatMessage
 
 app = FastAPI()
 
@@ -22,8 +36,15 @@ bureau.add(cypher_agent)
 async def ask_agent(q: str = Query(...)):
     msg = ChatMessage(sender="frontend_user", message=q)
     # Try using Bureau.sync_request if available (older/newer uagents API differences)
+    fallback_reply = "⚡ System online. Awaiting next encrypted command."
     if hasattr(bureau, 'sync_request'):
-        result = await bureau.sync_request(cypher_agent.address, msg, ChatMessage)
+        try:
+            result = await asyncio.wait_for(
+                bureau.sync_request(cypher_agent.address, msg, ChatMessage),
+                timeout=3.0,
+            )
+        except (asyncio.TimeoutError, Exception):
+            return {"reply": fallback_reply}
         if result:
             return {"reply": result.message}
         else:
@@ -34,7 +55,13 @@ async def ask_agent(q: str = Query(...)):
         async with httpx.AsyncClient() as client:
             payload = {"sender": msg.sender, "message": msg.message}
             # agent's HTTP submit endpoint typically accepts POST JSON and may return JSON
-            r = await client.post("http://localhost:8001/submit", json=payload, timeout=5.0)
+            try:
+                r = await asyncio.wait_for(
+                    client.post("http://localhost:8001/submit", json=payload, timeout=5.0),
+                    timeout=3.0,
+                )
+            except (asyncio.TimeoutError, Exception):
+                return {"reply": fallback_reply}
             if r.status_code == 200:
                 try:
                     data = r.json()
@@ -46,7 +73,8 @@ async def ask_agent(q: str = Query(...)):
                     pass
                 return {"reply": "Message delivered to agent (no text reply parsed)."}
             else:
-                return {"reply": f"Agent HTTP submit returned status {r.status_code}."}
+                # Treat non-200 as agent slow/unavailable and return instant fallback
+                return {"reply": fallback_reply}
     except Exception as e:
         return {"reply": f"Failed to deliver message to agent via HTTP: {e}"}
 
