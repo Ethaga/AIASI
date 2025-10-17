@@ -4,26 +4,26 @@ function generateReply(q: string) {
   const text = String(q).trim();
   const lower = text.toLowerCase();
 
-  // Simple rule-based conversational replies to avoid echoing
-  if (/^\s*(hi|hello|halo|hey)\b/.test(lower)) {
-    return "Halo! Ada yang bisa saya bantu hari ini?";
+  // Simple rule-based conversational replies in English
+  if (/^\s*(hi|hello|hey)\b/.test(lower)) {
+    return "Hello! How can I help you today?";
   }
 
-  if (lower.includes("how are you") || lower.includes("apa kabar")) {
-    return "Saya baik, terima kasih! Bagaimana dengan Anda?";
+  if (lower.includes("how are you") || lower.includes("how's it going")) {
+    return "I'm doing well, thanks! How about you?";
   }
 
   if (text.endsWith("?")) {
-    return `Pertanyaan bagus — singkatnya: ${text.replace(/\?+$/g, "")}. Jika mau jawaban lebih panjang, minta detail.`;
+    return `Good question — briefly: ${text.replace(/\?+$/g, "")}. If you'd like a longer answer, ask for more details.`;
   }
 
   // If the user asks to 'follow' or 'echo', explain difference
-  if (lower.includes("echo") || lower.includes("ikuti") || lower.includes("mengikuti")) {
-    return "Sepertinya Anda ingin agen hanya mengulangi pesan. Saya bisa memberikan jawaban yang bermakna — coba tanya sesuatu atau tambahkan '?' untuk pertanyaan.";
+  if (lower.includes("echo") || lower.includes("follow") || lower.includes("repeat")) {
+    return "It seems you want the agent to just repeat messages. I can provide meaningful responses — try asking a question or adding a '?' for inquiries.";
   }
 
   // Default: provide a helpful paraphrase + follow-up question
-  return `Saya menerima: "${text}". Bisa jelaskan maksud Anda lebih rinci atau tanyakan sesuatu spesifik?`;
+  return `I received: "${text}". Could you clarify what you mean or ask something more specific?`;
 }
 
 export const handleAsk: RequestHandler = (req, res) => {
