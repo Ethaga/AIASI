@@ -1,7 +1,9 @@
 export async function connectWallet() {
   if ((window as any).ethereum) {
     try {
-      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await (window as any).ethereum.request({
+        method: "eth_requestAccounts",
+      });
       const addr = accounts[0] as string;
       const el = document.getElementById("walletStatus");
       if (el) {
@@ -16,14 +18,16 @@ export async function connectWallet() {
 }
 
 export async function sendMessage() {
-  const inputEl = document.getElementById("userInput") as HTMLInputElement | null;
+  const inputEl = document.getElementById(
+    "userInput",
+  ) as HTMLInputElement | null;
   const chatBox = document.getElementById("chatBox");
   const input = inputEl?.value.trim() ?? "";
   if (!input) return;
   if (chatBox) chatBox.innerHTML += `</p><p>You: ${input}</p><p>`;
 
-  const endpoint = (window as any).AGENT_ENDPOINT ||
-    `${location.origin}/api/ask`;
+  const endpoint =
+    (window as any).AGENT_ENDPOINT || `${location.origin}/api/ask`;
 
   try {
     const res = await fetch(`${endpoint}?q=${encodeURIComponent(input)}`);
@@ -31,9 +35,11 @@ export async function sendMessage() {
     const reply = data.reply ?? data.message ?? "Acknowledged.";
     if (chatBox) chatBox.innerHTML += `</p><p>Agent: ${reply}</p><p>`;
   } catch (e) {
-    if (chatBox) chatBox.innerHTML += `</p><p>Agent: Sorry, the agent endpoint is unreachable.</p><p>`;
+    if (chatBox)
+      chatBox.innerHTML += `</p><p>Agent: Sorry, the agent endpoint is unreachable.</p><p>`;
   }
 
   if (inputEl) inputEl.value = "";
-  if (chatBox) (chatBox as HTMLElement).scrollTop = (chatBox as HTMLElement).scrollHeight;
+  if (chatBox)
+    (chatBox as HTMLElement).scrollTop = (chatBox as HTMLElement).scrollHeight;
 }

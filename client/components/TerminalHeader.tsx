@@ -3,10 +3,12 @@ import { cn } from "@/lib/utils";
 
 export default function TerminalHeader() {
   return (
-    <header className={cn(
-      "w-full sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-      "border-b border-cyan-500/20 shadow-[0_0_30px_-5px_rgba(0,255,255,0.25)]"
-    )}>
+    <header
+      className={cn(
+        "w-full sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "border-b border-cyan-500/20 shadow-[0_0_30px_-5px_rgba(0,255,255,0.25)]",
+      )}
+    >
       <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="relative h-9 w-9">
@@ -28,12 +30,15 @@ export default function TerminalHeader() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div id="walletStatus" className="hidden md:block text-cyan-300 text-sm drop-shadow-[0_0_8px_rgba(0,255,255,0.6)]"></div>
+          <div
+            id="walletStatus"
+            className="hidden md:block text-cyan-300 text-sm drop-shadow-[0_0_8px_rgba(0,255,255,0.6)]"
+          ></div>
           <Button
             onClick={() => (window as any).connectWallet?.()}
             className={cn(
               "neon-button text-black font-bold",
-              "bg-[linear-gradient(90deg,#5F43F1,#00FFFF)] text-slate-900"
+              "bg-[linear-gradient(90deg,#5F43F1,#00FFFF)] text-slate-900",
             )}
           >
             Connect Wallet
