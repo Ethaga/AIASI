@@ -28,6 +28,10 @@ function AppShell() {
   useEffect(() => {
     (window as any).connectWallet = connectWallet;
     (window as any).sendMessage = sendMessage;
+    (window as any).pingAgent = pingAgent;
+
+    // attempt to ping agent once on load
+    pingAgent().catch(() => {});
   }, []);
 
   return (
