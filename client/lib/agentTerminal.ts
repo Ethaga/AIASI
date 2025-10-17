@@ -88,7 +88,10 @@ export async function sendMessage(userText?: string) {
         }
       }
     } catch (parseErr) {
-      console.warn("Failed to parse response body as JSON, falling back to text:", parseErr);
+      console.warn(
+        "Failed to parse response body as JSON, falling back to text:",
+        parseErr,
+      );
       try {
         const txt = await res.text();
         data = { reply: txt };

@@ -24,7 +24,9 @@ function generateReply(q: string) {
   const lower = text.toLowerCase();
 
   // Greetings
-  if (/^\s*(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(lower)) {
+  if (
+    /^\s*(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(lower)
+  ) {
     return "Hello! How can I assist you today?";
   }
 
@@ -38,7 +40,8 @@ function generateReply(q: string) {
     const loc = extractLocation(text) || "your area";
     // Simulated quick weather reply (no external API)
     const temp = 18 + (text.length % 10);
-    const cond = temp > 22 ? "sunny" : temp < 16 ? "chilly and cloudy" : "partly cloudy";
+    const cond =
+      temp > 22 ? "sunny" : temp < 16 ? "chilly and cloudy" : "partly cloudy";
     return `I don't have live weather data, but for ${loc} it's likely ${cond} around ${temp}°C. For real-time data I can integrate a weather API like OpenWeatherMap if you want.`;
   }
 
@@ -53,9 +56,15 @@ function generateReply(q: string) {
   }
 
   // Math calculations
-  if (lower.startsWith("calculate") || lower.startsWith("what is") || /[0-9]+\s*[-+/*]\s*[0-9]+/.test(lower)) {
+  if (
+    lower.startsWith("calculate") ||
+    lower.startsWith("what is") ||
+    /[0-9]+\s*[-+/*]\s*[0-9]+/.test(lower)
+  ) {
     // Try to extract expression
-    const exprMatch = text.match(/(?:calculate|what is|what's)?\s*:?\s*([0-9+\-*/().\s]+)/i);
+    const exprMatch = text.match(
+      /(?:calculate|what is|what's)?\s*:?\s*([0-9+\-*/().\s]+)/i,
+    );
     if (exprMatch && exprMatch[1]) {
       const result = safeEvalMath(exprMatch[1]);
       if (result !== null) return `The result is ${result}.`;
@@ -63,10 +72,14 @@ function generateReply(q: string) {
   }
 
   // Definitions
-  if (lower.startsWith("define ") || lower.startsWith("what is ") && lower.includes("meaning")) {
+  if (
+    lower.startsWith("define ") ||
+    (lower.startsWith("what is ") && lower.includes("meaning"))
+  ) {
     const termMatch = text.match(/define\s+(.+)|what is\s+(.+)/i);
-    const term = termMatch ? (termMatch[1] || termMatch[2]) : null;
-    if (term) return `Definition of ${term.trim()}: (short explanation) — I'm a lightweight local agent; connect a dictionary API for detailed definitions.`;
+    const term = termMatch ? termMatch[1] || termMatch[2] : null;
+    if (term)
+      return `Definition of ${term.trim()}: (short explanation) — I'm a lightweight local agent; connect a dictionary API for detailed definitions.`;
   }
 
   // If question mark, try to answer more directly
