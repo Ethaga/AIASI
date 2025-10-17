@@ -1,29 +1,81 @@
 import { RequestHandler } from "express";
 
+function safeEvalMath(expr: string): string | null {
+  const cleaned = expr.replace(/\s+/g, "");
+  if (!/^[0-9+\-*/().]+$/.test(cleaned)) return null;
+  try {
+    // eslint-disable-next-line no-new-func
+    const val = Function(`return (${cleaned})`)();
+    if (typeof val === "number" && Number.isFinite(val)) return String(val);
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function extractLocation(text: string): string | null {
+  const m = text.match(/in\s+([A-Za-z\s,()'-]+)/i);
+  if (m && m[1]) return m[1].trim();
+  return null;
+}
+
 function generateReply(q: string) {
   const text = String(q).trim();
   const lower = text.toLowerCase();
 
-  // Simple rule-based conversational replies in English
-  if (/^\s*(hi|hello|hey)\b/.test(lower)) {
-    return "Hello! How can I help you today?";
+  // Greetings
+  if (/^\s*(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(lower)) {
+    return "Hello! How can I assist you today?";
   }
 
+  // How are you
   if (lower.includes("how are you") || lower.includes("how's it going")) {
-    return "I'm doing well, thanks! How about you?";
+    return "I'm doing well, thank you! How can I help you today?";
   }
 
+  // Weather requests
+  if (lower.includes("weather")) {
+    const loc = extractLocation(text) || "your area";
+    // Simulated quick weather reply (no external API)
+    const temp = 18 + (text.length % 10);
+    const cond = temp > 22 ? "sunny" : temp < 16 ? "chilly and cloudy" : "partly cloudy";
+    return `I don't have live weather data, but for ${loc} it's likely ${cond} around ${temp}°C. For real-time data I can integrate a weather API like OpenWeatherMap if you want.`;
+  }
+
+  // Time requests
+  if (lower.includes("time")) {
+    const loc = extractLocation(text);
+    const now = new Date();
+    if (loc) {
+      return `I don't have exact timezone mapping here, but the current UTC time is ${now.toUTCString()}. If you provide a city I can try to compute a local time.`;
+    }
+    return `The current server time is ${now.toString()} (local) or ${now.toUTCString()} (UTC).`;
+  }
+
+  // Math calculations
+  if (lower.startsWith("calculate") || lower.startsWith("what is") || /[0-9]+\s*[-+/*]\s*[0-9]+/.test(lower)) {
+    // Try to extract expression
+    const exprMatch = text.match(/(?:calculate|what is|what's)?\s*:?\s*([0-9+\-*/().\s]+)/i);
+    if (exprMatch && exprMatch[1]) {
+      const result = safeEvalMath(exprMatch[1]);
+      if (result !== null) return `The result is ${result}.`;
+    }
+  }
+
+  // Definitions
+  if (lower.startsWith("define ") || lower.startsWith("what is ") && lower.includes("meaning")) {
+    const termMatch = text.match(/define\s+(.+)|what is\s+(.+)/i);
+    const term = termMatch ? (termMatch[1] || termMatch[2]) : null;
+    if (term) return `Definition of ${term.trim()}: (short explanation) — I'm a lightweight local agent; connect a dictionary API for detailed definitions.`;
+  }
+
+  // If question mark, try to answer more directly
   if (text.endsWith("?")) {
-    return `Good question — briefly: ${text.replace(/\?+$/g, "")}. If you'd like a longer answer, ask for more details.`;
+    return `Here's a direct answer based on common knowledge: ${text.replace(/\?+$/g, "")}. If you want more detail, ask me to expand.`;
   }
 
-  // If the user asks to 'follow' or 'echo', explain difference
-  if (lower.includes("echo") || lower.includes("follow") || lower.includes("repeat")) {
-    return "It seems you want the agent to just repeat messages. I can provide meaningful responses — try asking a question or adding a '?' for inquiries.";
-  }
-
-  // Default: provide a helpful paraphrase + follow-up question
-  return `I received: "${text}". Could you clarify what you mean or ask something more specific?`;
+  // Default: paraphrase and offer follow-up
+  return `I received: "${text}". Could you clarify or ask a specific question? For example: "What's the weather in Jakarta?" or "Calculate 12 / 3".`;
 }
 
 export const handleAsk: RequestHandler = (req, res) => {
