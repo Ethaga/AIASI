@@ -1,3 +1,12 @@
+function escapeHtml(unsafe: string) {
+  return unsafe
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 export async function connectWallet() {
   if ((window as any).ethereum) {
     try {
@@ -17,29 +26,61 @@ export async function connectWallet() {
   }
 }
 
-export async function sendMessage() {
-  const inputEl = document.getElementById(
-    "userInput",
-  ) as HTMLInputElement | null;
-  const chatBox = document.getElementById("chatBox");
-  const input = inputEl?.value.trim() ?? "";
-  if (!input) return;
-  if (chatBox) chatBox.innerHTML += `</p><p>You: ${input}</p><p>`;
+export async function pingAgent() {
+  const statusEl = document.querySelector("#statusBar") as HTMLElement | null;
+  const endpoint = (window as any).AGENT_ENDPOINT || `${location.origin}/api/ask`;
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q: "ping" }),
+    });
+    if (statusEl) {
+      if (res.ok) {
+        statusEl.textContent = "🟢 Agent online";
+        console.log("✅ Connected to ASI Agent Backend");
+      } else {
+        statusEl.textContent = "🟠 Agent responding slowly";
+        console.warn("⚠️ Partial connection to agent backend");
+      }
+    }
+  } catch (err) {
+    if (statusEl) statusEl.textContent = "🔴 Agent unreachable";
+    console.error("❌ Agent endpoint unreachable:", err);
+  }
+}
 
-  const endpoint =
-    (window as any).AGENT_ENDPOINT || `${location.origin}/api/ask`;
+export async function sendMessage(userText?: string) {
+  const inputEl = document.getElementById("userInput") as HTMLInputElement | null;
+  const chatBox = document.getElementById("chatBox");
+  const text = (userText ?? inputEl?.value ?? "").trim();
+  if (!text) return;
+
+  if (chatBox) {
+    chatBox.innerHTML += `<div class='user'>You: ${escapeHtml(text)}</div>`;
+  }
+
+  const endpoint = (window as any).AGENT_ENDPOINT || `${location.origin}/api/ask`;
 
   try {
-    const res = await fetch(`${endpoint}?q=${encodeURIComponent(input)}`);
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q: text }),
+    });
     const data = await res.json();
-    const reply = data.reply ?? data.message ?? "Acknowledged.";
-    if (chatBox) chatBox.innerHTML += `</p><p>Agent: ${reply}</p><p>`;
-  } catch (e) {
+    const reply = data.reply ?? data.message ?? "...";
+    if (chatBox) chatBox.innerHTML += `<div class='agent'>Agent: ${escapeHtml(reply)}</div>`;
+  } catch (err) {
     if (chatBox)
-      chatBox.innerHTML += `</p><p>Agent: Sorry, the agent endpoint is unreachable.</p><p>`;
+      chatBox.innerHTML += `<div class='agent error'>Agent: unreachable ⚠️</div>`;
+    console.error(err);
   }
 
   if (inputEl) inputEl.value = "";
-  if (chatBox)
-    (chatBox as HTMLElement).scrollTop = (chatBox as HTMLElement).scrollHeight;
+  if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+// expose to window for legacy handlers
+(window as any).pingAgent = pingAgent;
+(window as any).sendMessage = sendMessage;
