@@ -11,12 +11,12 @@ from uagents_core.utils.registration import (
 )
 
 def main():
-    key = os.environ.get("AGENTVERSE_KEY")
+    key = os.environ.get("AGENTVERSE_API_KEY") or os.environ.get("AGENTVERSE_KEY")
     seed = os.environ.get("AGENT_SEED_PHRASE")
-    print("AGENTVERSE_KEY present:", bool(key))
+    print("AGENTVERSE_API_KEY present:", bool(key))
     print("AGENT_SEED_PHRASE present:", bool(seed))
     if not key or not seed:
-        print("Missing AGENTVERSE_KEY or AGENT_SEED_PHRASE. Aborting.")
+        print("Missing AGENTVERSE_API_KEY or AGENT_SEED_PHRASE. Aborting.")
         return
 
     try:
