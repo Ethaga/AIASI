@@ -21,5 +21,17 @@ export function createServer() {
   app.get("/api/demo", handleDemo);
   app.post("/api/ask", handleAsk);
 
+  app.get("/api/agent/info", (_req, res) => {
+    const info = {
+      endpoint: process.env.AGENT_ENDPOINT || process.env.AGENT_BACKEND_URL || null,
+      address: process.env.AGENT_PUBLIC_ADDRESS || null,
+      chatProtocol: "fetchai-uagents-chat-v1",
+      metta: {
+        enabled: !!process.env.AGENT_METTA_KB,
+      },
+    } as const;
+    res.json(info);
+  });
+
   return app;
 }
