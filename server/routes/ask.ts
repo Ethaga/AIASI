@@ -1,5 +1,35 @@
 import { RequestHandler } from "express";
 
+const AGENT_ENDPOINT =
+  process.env.AGENT_ENDPOINT || process.env.AGENT_BACKEND_URL || "";
+
+async function forwardToAgentBackend(q: string): Promise<string | null> {
+  if (!AGENT_ENDPOINT) return null;
+  try {
+    const resp = await fetch(AGENT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q }),
+    });
+    const contentType = (resp.headers.get("content-type") || "").toLowerCase();
+    if (contentType.includes("application/json")) {
+      const data: any = await resp.json().catch(() => null);
+      const reply = data && (data.reply ?? data.message);
+      return typeof reply === "string" ? reply : null;
+    }
+    const txt = await resp.text();
+    try {
+      const data = JSON.parse(txt);
+      const reply = data && (data.reply ?? data.message);
+      return typeof reply === "string" ? reply : txt;
+    } catch {
+      return txt;
+    }
+  } catch {
+    return null;
+  }
+}
+
 function safeEvalMath(expr: string): string | null {
   const cleaned = expr.replace(/\s+/g, "");
   if (!/^[0-9+\-*/().]+$/.test(cleaned)) return null;
@@ -91,13 +121,17 @@ function generateReply(q: string) {
   return `I received: "${text}". Could you clarify or ask a specific question? For example: "What's the weather in Jakarta?" or "Calculate 12 / 3".`;
 }
 
-export const handleAsk: RequestHandler = (req, res) => {
+export const handleAsk: RequestHandler = async (req, res) => {
   const q = (req.body && req.body.q) || req.query.q;
   if (!q) {
     return res.status(400).json({ error: "Missing 'q' in request" });
   }
 
+  const forwarded = await forwardToAgentBackend(String(q));
+  if (forwarded) {
+    return res.status(200).json({ reply: forwarded, message: forwarded });
+  }
+
   const reply = generateReply(String(q));
-  // Return both reply and message for client compatibility
-  res.status(200).json({ reply, message: reply });
+  return res.status(200).json({ reply, message: reply });
 };
