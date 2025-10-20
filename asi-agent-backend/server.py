@@ -23,7 +23,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://spectacular-buttercream-44383a.netlify.app"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -86,6 +86,19 @@ async def ask(request: Request):
     q = data.get("q", "")
     print(f"Received: {q}")
     return {"reply": f"Agent received: {q}"}
+
+@app.get("/identity")
+async def identity():
+    return {"address": cypher_agent.address}
+
+@app.get("/agent/info")
+async def agent_info():
+    metta_enabled = bool(getattr(agent_mod, "_METTA", None))
+    return {
+        "address": cypher_agent.address,
+        "chatProtocol": "fetchai-uagents-chat-v1",
+        "metta": {"enabled": metta_enabled},
+    }
 
 if __name__ == "__main__":
     bureau.run()

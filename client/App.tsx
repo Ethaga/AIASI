@@ -1,7 +1,4 @@
-import "./global.css";
-
 import { Toaster } from "@/components/ui/toaster";
-import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,7 +10,7 @@ const queryClient = new QueryClient();
 
 import TerminalHeader from "@/components/TerminalHeader";
 import { useEffect } from "react";
-import { connectWallet, sendMessage } from "@/lib/agentTerminal";
+import { connectWallet, sendMessage, pingAgent } from "@/lib/agentTerminal";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -31,6 +28,10 @@ function AppShell() {
   useEffect(() => {
     (window as any).connectWallet = connectWallet;
     (window as any).sendMessage = sendMessage;
+    (window as any).pingAgent = pingAgent;
+
+    // attempt to ping agent once on load
+    pingAgent().catch(() => {});
   }, []);
 
   return (
@@ -53,4 +54,4 @@ function AppShell() {
   );
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+export default App;

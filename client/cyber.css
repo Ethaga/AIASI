@@ -52,4 +52,32 @@
     color: #00ffff;
     margin: 8px 0;
   }
+  .user {
+    text-align: right;
+    color: #ff7aff;
+    margin: 8px 0;
+  }
+  .agent {
+    text-align: left;
+    color: #00ffff;
+    margin: 8px 0;
+  }
+  .agent.error {
+    color: #ff6b6b;
+    opacity: 0.95;
+  }
+  .user,
+  .agent {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.03) inset;
+  }
+  .user {
+    background: linear-gradient(
+      90deg,
+      rgba(95, 67, 241, 0.06),
+      rgba(0, 255, 255, 0.03)
+    );
+  }
 }
