@@ -26,3 +26,6 @@ dist-ssr
 .config/
 !.env
 __pycache__/
+
+# Local Netlify folder
+.netlify
