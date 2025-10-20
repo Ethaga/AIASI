@@ -8,9 +8,28 @@ function escapeHtml(unsafe: string) {
 }
 
 export async function connectWallet() {
-  if ((window as any).ethereum) {
+  const win: any = window as any;
+
+  // Ensure we don't try to redefine `ethereum` if it's already defined
+  if (!win.ethereum) {
+    const injectedProvider =
+      win.injectedProvider || win._injectedProvider || (win.web3 && (win.web3.currentProvider || (win.web3 as any).provider)) || null;
+    if (injectedProvider) {
+      try {
+        if (!Object.prototype.hasOwnProperty.call(win, "ethereum")) {
+          win.ethereum = injectedProvider;
+        }
+      } catch {
+        try {
+          win.ethereum = injectedProvider;
+        } catch {}
+      }
+    }
+  }
+
+  if (win.ethereum) {
     try {
-      const accounts = await (window as any).ethereum.request({
+      const accounts = await win.ethereum.request({
         method: "eth_requestAccounts",
       });
       const addr = accounts[0] as string;
